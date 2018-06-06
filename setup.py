@@ -1,13 +1,24 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import pip.download
-
-from pip.req import parse_requirements
+import requirements
 
 from setuptools import find_packages, setup
 
 exec(open('steenzout/object/metadata.py').read())
+
+
+def install_requires(file_name):
+    """
+    Parse the requirements.txt file
+
+    Returns:
+        dict: parsed requirements.txt
+    """
+    with open(file_name, 'r') as f:
+        install_requires = [str(i.line) for i in requirements.parse(f) if i.name]
+    return install_requires
+
 
 setup(name='steenzout.object',
       version=__version__,
@@ -20,11 +31,7 @@ setup(name='steenzout.object',
       namespace_packages=['steenzout'],
       packages=find_packages(exclude=('*.tests', '*.tests.*', 'tests.*', 'tests')),
       package_data={'': ['LICENSE', 'NOTICE.md']},
-      install_requires=[
-          str(pkg.req) for pkg in parse_requirements(
-              'requirements.txt', session=pip.download.PipSession())],
-      tests_require=[
-          str(pkg.req) for pkg in parse_requirements(
-              'requirements-test.txt', session=pip.download.PipSession())],
+      install_requires=install_requires('requirements.txt'),
+      tests_require=install_requires('requirements-test.txt'),
       license=__license__,
       classifiers=__classifiers__)
